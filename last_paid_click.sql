@@ -5,6 +5,7 @@ WITH paid_visits AS (
         COALESCE(ya.utm_source, vk.utm_source) AS utm_source,
         COALESCE(ya.utm_medium, vk.utm_medium) AS utm_medium,
         COALESCE(ya.utm_campaign, vk.utm_campaign) AS utm_campaign,
+		-- Реализуем счетчик для вычисления последнего платного клика
         ROW_NUMBER() OVER (
             PARTITION BY s.visitor_id
             ORDER BY s.visit_date DESC
