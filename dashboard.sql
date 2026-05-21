@@ -71,7 +71,7 @@ ORDER BY
     visitors_count DESC;
 
 -- Сколько лидов к нам приходят?
-SELECT COUNT(DISTINCT visitors_id) AS total_leads
+SELECT COUNT(DISTINCT visitor_id) AS total_leads
 FROM leads;
 
 -- Какая конверсия из клика в лид? А из лида в оплату?
