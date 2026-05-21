@@ -94,21 +94,47 @@ successful_conversions AS (
 )
 
 SELECT
+    uc.total_clicks,
     -- Конверсия из клика в лид: лиды / клики
+    ul.total_leads,
+    sc.successful_purchases,
+    -- Конверсия из лида в оплату: успешные покупки / лиды
     ROUND(
         CAST(ul.total_leads AS NUMERIC) / uc.total_clicks * 100,
         2
     ) AS click_to_lead_conversion_pct,
-
-    -- Конверсия из лида в оплату: успешные покупки / лиды
     ROUND(
         CAST(sc.successful_purchases AS NUMERIC) / ul.total_leads * 100,
         2
     ) AS lead_to_purchase_conversion_pct
-
 FROM unique_clicks AS uc
 CROSS JOIN unique_leads AS ul
 CROSS JOIN successful_conversions AS sc;
+
+-- Конверсия для Preset
+SELECT
+    'Посетители сайта' AS phase,
+    COUNT(DISTINCT s.visitor_id) AS val
+FROM sessions AS s
+
+UNION ALL
+
+SELECT
+    'Оставили заявку' AS phase,
+    COUNT(DISTINCT l.visitor_id) AS val
+FROM leads AS l
+
+UNION ALL
+
+SELECT
+    'Совершили покупку' AS phase,
+    COUNT(DISTINCT l.visitor_id) AS val
+FROM leads AS l
+WHERE
+    l.status_id = 142
+    OR l.closing_reason = 'Успешно реализовано'
+ORDER BY val DESC;
+
 
 -- Сколько мы тратим по разным каналам в динамике?
 -- по дням
@@ -310,3 +336,14 @@ LEFT JOIN ads
         AND lpc.utm_campaign = ads.utm_campaign
 WHERE ads.utm_source IS NOT NULL
 GROUP BY ads.utm_source;
+
+-- За сколько дней с момента перехода по рекламе закрывается 90% лидов.
+SELECT
+    PERCENTILE_CONT(0.9) WITHIN GROUP (
+        ORDER BY l.created_at - s.visit_date
+    ) AS lead_closure_90pct_days
+FROM sessions AS s
+LEFT JOIN leads AS l
+    ON
+        s.visitor_id = l.visitor_id
+        AND s.visit_date <= l.created_at;
