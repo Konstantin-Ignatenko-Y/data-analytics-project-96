@@ -1,3 +1,6 @@
+-- Ссылка на дашборд
+-- https://0782aeb4.us2a.app.preset.io/superset/dashboard/9/?native_filters_key=g3ntc9Zadf4
+
 -- Сколько у нас пользователей заходят на сайт?
 SELECT COUNT(DISTINCT visitor_id)
 FROM sessions;
